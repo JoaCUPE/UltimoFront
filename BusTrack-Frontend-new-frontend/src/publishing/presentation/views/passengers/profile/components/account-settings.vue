@@ -132,7 +132,7 @@ const saveChanges = () => {
     <!-- Botón Volver -->
     <div class="navigation-section">
       <button class="back-btn" @click="goBack">
-        {{ $t('accountSettings.back') }}
+        {{ t('accountSettings.back') }}
       </button>
     </div>
 

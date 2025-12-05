@@ -3,7 +3,9 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSavedRoutesStore } from '@/stores/useSavedRoutesStore'
 import { useNotificationsStore } from '@/stores/useNotificationsStore'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 const savedRoutesStore = useSavedRoutesStore()
 const notificationsStore = useNotificationsStore()
@@ -26,17 +28,18 @@ const viewRouteDetails = (route) => {
 }
 
 const removeRoute = (routeId) => {
-  if (confirm('¿Estás seguro de eliminar esta ruta de favoritos?')) {
+  if (confirm(t('favoriteRoutes.confirmDelete'))) {
     savedRoutesStore.removeRoute(routeId)
 
     notificationsStore.addNotification({
       type: 'info',
-      message: 'Ruta eliminada de favoritos',
+      messageKey: 'favoriteRoutes.removed', // mejor usar messageKey
       priority: 'low',
       icon: '🗑️'
     })
   }
 }
+
 
 const formatDate = (dateString) => {
   const date = new Date(dateString)

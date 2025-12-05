@@ -1,26 +1,26 @@
 import { defineStore } from 'pinia'
 
+/**
+ * Saved Routes Store
+ * Manages user's saved routes for quick access
+ */
 export const useSavedRoutesStore = defineStore('savedRoutes', {
     state: () => ({
-        /**
-         * Array of saved route objects loaded from localStorage.
-         * Each route contains id, origin, destination, and savedAt timestamp.
-         * @type {Array<SavedRoute>}
-         */
-        routes: JSON.parse(localStorage.getItem('savedRoutes') || '[]'),
+        routes: JSON.parse(localStorage.getItem('savedRoutes') || '[]')
     }),
+
     getters: {
         /**
-         * Returns all saved routes.
-         * @param {Object} state - The store state
-         * @returns {Array<SavedRoute>} Complete list of saved routes
+         * Get all saved routes
+         * @param {Object} state - Store state
+         * @returns {Array} Complete list of saved routes
          */
         getAllRoutes: (state) => state.routes,
 
         /**
-         * Checks if a route with the given origin and destination already exists.
-         * @param {Object} state - The store state
-         * @returns {function(string, string): boolean} Function that takes origin and destination and returns existence status
+         * Check if a route already exists
+         * @param {Object} state - Store state
+         * @returns {Function} Function that checks route existence
          */
         routeExists: (state) => (origin, destination) => {
             return state.routes.some(
@@ -28,16 +28,15 @@ export const useSavedRoutesStore = defineStore('savedRoutes', {
             )
         }
     },
+
     actions: {
         /**
-         * Adds a new route to the saved routes list.
-         * Only adds the route if it doesn't already exist (based on origin and destination).
-         * Automatically assigns an ID (timestamp) and savedAt timestamp, then persists to localStorage.
-         *
-         * @param {RoutePayload} route - Route object to save
-         * @param {string} route.origin - Starting point/origin location of the route
-         * @param {string} route.destination - End point/destination location of the route
-         * @returns {boolean} true if route was added successfully, false if route already exists
+         * Add a new route to saved routes
+         * Only adds if route doesn't already exist
+         * @param {Object} route - Route to save
+         * @param {string} route.origin - Starting point
+         * @param {string} route.destination - End point
+         * @returns {boolean} Whether route was added
          */
         addRoute(route) {
             if (!this.routeExists(route.origin, route.destination)) {
@@ -45,7 +44,7 @@ export const useSavedRoutesStore = defineStore('savedRoutes', {
                     id: Date.now(),
                     origin: route.origin,
                     destination: route.destination,
-                    savedAt: new Date().toISOString(),
+                    savedAt: new Date().toISOString()
                 }
                 this.routes.unshift(newRoute)
                 this.saveToLocalStorage()
@@ -55,10 +54,8 @@ export const useSavedRoutesStore = defineStore('savedRoutes', {
         },
 
         /**
-         * Removes a specific route from the saved routes list.
-         *
-         * @param {number} routeId - Unique identifier of the route to remove
-         * @returns {void}
+         * Remove a specific route
+         * @param {number} routeId - Route ID to remove
          */
         removeRoute(routeId) {
             this.routes = this.routes.filter(route => route.id !== routeId)
@@ -66,12 +63,10 @@ export const useSavedRoutesStore = defineStore('savedRoutes', {
         },
 
         /**
-         * Persists the current routes array to localStorage.
-         * Called automatically after every modification to maintain data consistency.
-         * @returns {void}
+         * Save routes to localStorage
          */
         saveToLocalStorage() {
             localStorage.setItem('savedRoutes', JSON.stringify(this.routes))
         }
-    },
+    }
 })

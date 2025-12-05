@@ -204,7 +204,7 @@ const goToLogin = () => {
 
     <!-- Botón Submit -->
     <button type="submit" class="btn-submit" :disabled="loading">
-      {{ loading ? 'Registrando...' : t('companyRegister.register.submit') }}
+      {{ loading ? t('companyRegister.register.loading') : t('companyRegister.register.submit') }}
     </button>
 
     <!-- Link a Login -->

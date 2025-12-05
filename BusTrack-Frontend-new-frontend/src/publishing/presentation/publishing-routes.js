@@ -7,7 +7,7 @@ const publishingRoutes = [
     {
         path: "/search-route",
         name: "SearchRout",
-        component: () => import('@/publishing/presentation/views/search-route/search-rout.vue')
+        component: () => import('@/publishing/presentation/views/search-route/search-route.vue')
     },
     {
         path: "/notifications",

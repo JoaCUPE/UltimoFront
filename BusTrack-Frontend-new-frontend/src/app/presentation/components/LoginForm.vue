@@ -37,11 +37,18 @@ const errors = reactive({
 })
 
 function validate () {
-  errors.emailOrUsername = !form.emailOrUsername ? 'Ingresa tu correo o usuario' : null
-  errors.password = !form.password ? 'Ingresa tu contraseña' : null
+  errors.emailOrUsername = !form.emailOrUsername
+      ? t('auth.login.errors.usernameRequired')
+      : null
+
+  errors.password = !form.password
+      ? t('auth.login.errors.passwordRequired')
+      : null
+
   errors.general = null
   return !errors.emailOrUsername && !errors.password
 }
+
 
 const canSubmit = computed(() => form.emailOrUsername && form.password)
 
@@ -75,7 +82,7 @@ async function onSubmit () {
         router.push('/home')
       } else {
         console.log('❌ Login fallido: credenciales incorrectas')
-        errors.general = 'Usuario o contraseña incorrectos. Por favor, intenta de nuevo.'
+        errors.general = `${t('errors.auth.invalidCredentials')}. ${t('errors.tryAgain')}`
       }
     }
   } catch (error) {

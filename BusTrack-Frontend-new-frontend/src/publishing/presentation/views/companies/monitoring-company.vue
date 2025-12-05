@@ -1,13 +1,12 @@
-<script setup lang="js">
+<script setup>
 import CompanyTopNav from '@/shared/presentation/components/CompanyTopNav.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useNotificationsStore } from '@/stores/useNotificationsStore'
 
 const { t } = useI18n()
 const notificationsStore = useNotificationsStore()
 
-// --- ESTADO DE DATOS ---
 const buses = ref([
   {
     id: 204,
@@ -36,8 +35,8 @@ const buses = ref([
 
 const isRefreshing = ref(false)
 const showCreateModal = ref(false)
+const hasConnectionError = ref(false)
 
-// Estado para el nuevo bus
 const newBus = ref({
   id: '',
   route: '',
@@ -45,47 +44,55 @@ const newBus = ref({
   status: 'on_time'
 })
 
-// --- ACCIONES ---
+const busesVisible = computed(() => {
+  return hasConnectionError.value ? [] : buses.value
+})
 
-// Refrescar (Simulación existente)
 const refreshData = () => {
   isRefreshing.value = true
+  hasConnectionError.value = false
+
   setTimeout(() => {
+    const simulateError = Math.random() < 0.2
+
+    if (simulateError) {
+      hasConnectionError.value = true
+      console.log('❌ US07 Negativo: Error de conexión con el servidor')
+    } else {
+      hasConnectionError.value = false
+      notificationsStore.addNotification({
+        type: 'info',
+        messageKey: 'monitoring.updated',
+        priority: 'low',
+        icon: '🔄'
+      })
+      console.log('✅ US07 Positivo: Buses cargados correctamente')
+    }
+
     isRefreshing.value = false
-    notificationsStore.addNotification({
-      type: 'info',
-      messageKey: 'monitoring.updated',
-      priority: 'low',
-      icon: '🔄'
-    })
   }, 1000)
 }
 
-// Abrir Modal de Creación
 const openCreateModal = () => {
   newBus.value = { id: '', route: '', driver: '', status: 'on_time' }
   showCreateModal.value = true
 }
 
-// Crear Bus
 const createBus = () => {
-  // Validación simple
   if (!newBus.value.id || !newBus.value.route || !newBus.value.driver) {
     alert(t('monitoring.errors.missingFields'))
     return
   }
 
-  // Agregamos al inicio del array
   buses.value.unshift({
     id: newBus.value.id,
     route: newBus.value.route,
     driver: newBus.value.driver,
     status: newBus.value.status,
-    lastUpdate: 0, // Recién creado
+    lastUpdate: 0,
     delayMinutes: newBus.value.status === 'delayed' ? 5 : 0
   })
 
-  // Notificación y cierre
   notificationsStore.addNotification({
     type: 'success',
     messageKey: 'monitoring.messages.busAdded',
@@ -97,7 +104,6 @@ const createBus = () => {
   showCreateModal.value = false
 }
 
-// Eliminar Bus
 const deleteBus = (busId) => {
   if (confirm(t('monitoring.confirmDelete'))) {
     buses.value = buses.value.filter(b => b.id !== busId)
@@ -112,7 +118,6 @@ const deleteBus = (busId) => {
   }
 }
 
-// --- UTILIDADES ---
 const getStatusStyles = (status) => {
   const styles = {
     on_time: { card: 'border-green', badge: 'bg-green-100 text-green-800', dot: 'bg-green-500' },
@@ -125,7 +130,38 @@ const getStatusStyles = (status) => {
 const openExternalMap = () => {
   window.open('https://www.google.com/maps/search/?api=1&query=UPC+San+Miguel', '_blank')
 }
+
+// Testing US07
+const testUS07 = (simulateError = false) => {
+  console.log('\n🧪 ===== TESTING US07 =====')
+  console.log(`Simular error: ${simulateError}`)
+
+  isRefreshing.value = true
+
+  setTimeout(() => {
+    if (simulateError) {
+      hasConnectionError.value = true
+      console.log('❌ US07 Negativo: Error de conexión mostrado')
+      console.log('✅ Mensaje en pantalla: "Error de conexión"')
+    } else {
+      hasConnectionError.value = false
+      console.log('✅ US07 Positivo: Panel de monitoreo cargado')
+      console.log(`✅ Buses visibles: ${busesVisible.value.length}`)
+    }
+    isRefreshing.value = false
+  }, 500)
+
+  console.log('========================\n')
+}
+
+if (import.meta.env.DEV) {
+  window.testUS07 = testUS07
+  console.log('🧪 Testing US07 disponible: testUS07(simulateError)')
+  console.log('Ejemplo: testUS07(false) → Debe mostrar buses')
+  console.log('Ejemplo: testUS07(true) → Debe mostrar "Error de conexión"')
+}
 </script>
+
 
 <template>
   <div class="page">
@@ -153,6 +189,20 @@ const openExternalMap = () => {
           </div>
         </div>
 
+        <!-- US07 Negativo: Mensaje de Error de Conexión -->
+        <div v-if="hasConnectionError" class="error-banner">
+          <div class="error-content">
+            <span class="error-icon">⚠️</span>
+            <div class="error-text">
+              <h3>{{ t('monitoring.connectionError.title') }}</h3>
+              <p>{{ t('monitoring.connectionError.description') }}</p>
+              <button @click="refreshData" class="retry-btn">
+                {{ t('monitoring.connectionError.retry') }}
+              </button>
+
+            </div>
+        </div>
+
         <div class="content-grid">
           <div class="map-card">
             <div class="map-frame">
@@ -172,13 +222,14 @@ const openExternalMap = () => {
           </div>
 
           <div class="buses-list">
-            <div v-if="buses.length === 0" class="empty-state">
+            <!-- ✅ CAMBIO 1: Cambia "buses" por "busesVisible" -->
+            <div v-if="busesVisible.length === 0 && !hasConnectionError" class="empty-state">
               <p>{{ t('monitoring.empty') }}</p>
             </div>
 
+            <!-- ✅ CAMBIO 2: Cambia "buses" por "busesVisible" -->
             <div
-                v-else
-                v-for="bus in buses"
+                v-for="bus in busesVisible"
                 :key="bus.id"
                 class="bus-card"
                 :class="getStatusStyles(bus.status).card"
@@ -221,6 +272,7 @@ const openExternalMap = () => {
           </div>
 
         </div>
+      </div>
       </div>
 
       <div v-if="showCreateModal" class="modal-backdrop">
@@ -269,14 +321,14 @@ const openExternalMap = () => {
 </template>
 
 <style scoped>
-/* Contenedor Principal */
+
 .monitoring-container {
   padding: 1.5rem;
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
 }
 
-/* Header */
+
 .header-section {
   display: flex;
   justify-content: space-between;
@@ -298,7 +350,7 @@ const openExternalMap = () => {
   text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Botones de Cabecera */
+
 .action-btn {
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
@@ -316,7 +368,7 @@ const openExternalMap = () => {
 .create-btn { background: #2e7d32; }
 .create-btn:hover { background: #1b5e20; transform: translateY(-2px); }
 
-/* Grid Layout */
+
 .content-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -325,7 +377,7 @@ const openExternalMap = () => {
   margin: 0 auto;
 }
 
-/* Mapa */
+
 .map-card {
   background: white;
   padding: 1rem;
@@ -355,7 +407,7 @@ const openExternalMap = () => {
   cursor: pointer;
 }
 
-/* Lista de Buses */
+
 .buses-list {
   display: flex;
   flex-direction: column;
@@ -385,7 +437,7 @@ const openExternalMap = () => {
   box-shadow: 0 6px 16px rgba(0,0,0,0.1);
 }
 
-/* Botón Eliminar en Tarjeta */
+
 .delete-btn {
   position: absolute;
   top: 10px;
@@ -401,7 +453,7 @@ const openExternalMap = () => {
 }
 .delete-btn:hover { color: #e53935; }
 
-/* Estilos de Estado */
+
 .border-green { border-left-color: #8bc34a; }
 .border-yellow { border-left-color: #fdd835; }
 .border-red { border-left-color: #e53935; }
@@ -442,7 +494,7 @@ const openExternalMap = () => {
 .label { color: #757575; font-weight: 500; }
 .value { color: #212121; font-weight: 600; text-align: right; }
 
-/* === Modal Styles === */
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -505,5 +557,60 @@ const openExternalMap = () => {
 @media (max-width: 900px) {
   .content-grid { grid-template-columns: 1fr; }
   .map-card { height: 300px; }
+}
+
+.error-banner {
+  background: #ffebee;
+  border: 2px solid #e53935;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.error-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.error-text {
+  flex: 1;
+}
+
+.error-text h3 {
+  margin: 0 0 0.5rem 0;
+  color: #c62828;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.error-text p {
+  margin: 0;
+  color: #666;
+}
+
+.retry-btn {
+  padding: 0.7rem 1.5rem;
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.retry-btn:hover {
+  background: #c62828;
+  transform: translateY(-2px);
 }
 </style>

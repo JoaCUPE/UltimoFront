@@ -1,12 +1,40 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, watch, ref } from 'vue'
 import { useNotificationsStore } from '@/stores/useNotificationsStore'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const notificationsStore = useNotificationsStore()
 
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastIcon = ref('')
+
 const notifications = computed(() => notificationsStore.getAllNotifications)
+
+onMounted(() => {
+  notificationsStore.items = JSON.parse(localStorage.getItem('notifications') || '[]')
+})
+
+watch(
+    () => notificationsStore.items.length,
+    (newLength, oldLength) => {
+      if (newLength > oldLength) {
+        const latestNotification = notificationsStore.items[0]
+        showToastNotification(latestNotification)
+      }
+    }
+)
+
+const showToastNotification = (notification) => {
+  toastIcon.value = notification.icon || '📢'
+  toastMessage.value = translateMessage(notification)
+  showToast.value = true
+
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
+}
 
 const formatTime = (timestamp) => {
   const date = new Date(timestamp)
@@ -25,6 +53,7 @@ const translateMessage = (notification) => {
   }
   return notification.message || t('notifications.messages.default')
 }
+
 const removeNotification = (id) => {
   notificationsStore.removeNotification(id)
 }
@@ -38,10 +67,76 @@ const clearAllNotifications = () => {
 const getPriorityClass = (priority) => {
   return priority || 'medium'
 }
+
+// Testing US05 and US06
+const testUS05 = (delayMinutes, enabled = true) => {
+  console.log('\n🧪 ===== TESTING US05 =====')
+
+  localStorage.setItem('notificationsEnabled', enabled.toString())
+
+  const testData = {
+    busNumber: '201',
+    routeName: 'Ruta San Miguel - Miraflores',
+    delayMinutes,
+    stopName: 'Rafael Escardó'
+  }
+
+  const notified = notificationsStore.notifyDelay(testData)
+
+  if (notified) {
+    console.log('✅ US05 Positivo: Notificación enviada')
+    console.log('✅ Debes ver un toast en la pantalla')
+  } else {
+    console.log('❌ US05 Negativo: No se envió notificación')
+  }
+
+  console.log('========================\n')
+  return notified
+}
+
+const testUS06 = (hasConnection = true) => {
+  console.log('\n🧪 ===== TESTING US06 =====')
+
+  const testData = {
+    busNumber: '301',
+    originalRoute: 'Surco - Centro',
+    newRoute: 'Surco - San Isidro',
+    reason: 'Tráfico en Av. Benavides'
+  }
+
+  const notified = hasConnection
+      ? notificationsStore.notifyRouteDetourWithConnection(testData)
+      : false
+
+  if (notified) {
+    console.log('✅ US06 Positivo: Alerta de desvío enviada')
+    console.log('✅ Debes ver un toast en la pantalla')
+  } else {
+    console.log('❌ US06 Negativo: No se envió alerta (sin conexión)')
+  }
+
+  console.log('========================\n')
+  return notified
+}
+
+if (import.meta.env.DEV) {
+  window.testUS05 = testUS05
+  window.testUS06 = testUS06
+  console.log('🧪 Testing disponible en /passengers/notifications')
+  console.log('testUS05(15, true) → Debe mostrar notificación')
+  console.log('testUS06(true) → Debe mostrar alerta')
+}
 </script>
 
 <template>
   <div class="notifications-container">
+    <transition name="slide-down">
+      <div v-if="showToast" class="toast-notification">
+        <span class="toast-icon">{{ toastIcon }}</span>
+        <span class="toast-message">{{ toastMessage }}</span>
+      </div>
+    </transition>
+
     <div class="notifications-header">
       <h1 class="notifications-title">{{ t('notifications.title') }}</h1>
       <button
@@ -68,7 +163,6 @@ const getPriorityClass = (priority) => {
           {{ notification.icon || '📍' }}
         </div>
         <div class="notification-content">
-
           <p class="notification-text">{{ translateMessage(notification) }}</p>
           <span class="notification-time">{{ formatTime(notification.timestamp) }}</span>
         </div>
@@ -135,12 +229,6 @@ const getPriorityClass = (priority) => {
   background: white;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.empty-icon {
-  font-size: 5rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
 }
 
 .empty-state p {
@@ -238,6 +326,61 @@ const getPriorityClass = (priority) => {
   transform: scale(1.1);
 }
 
+.toast-notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 400px;
+  animation: slideIn 0.3s ease;
+}
+
+.toast-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (max-width: 768px) {
   .notifications-container {
     padding: 1rem;
@@ -267,6 +410,12 @@ const getPriorityClass = (priority) => {
 
   .notification-text {
     font-size: 0.95rem;
+  }
+
+  .toast-notification {
+    right: 10px;
+    left: 10px;
+    min-width: auto;
   }
 }
 </style>

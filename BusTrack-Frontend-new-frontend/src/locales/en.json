@@ -33,7 +33,12 @@
       "noRoutesFound": "No routes found",
       "routeUpdated": "Route information updated",
       "favoriteAdded": "Added to favorites",
-      "favoriteRemoved": "Removed from favorites"
+      "favoriteRemoved": "Removed from favorites",
+      "busDelayed": "Bus {busNumber} is {delayMinutes} minutes delayed at {stopName}",
+      "notificationConfigured": "Notification configured for {stopName}",
+      "alreadyConfigured": "You already have notifications configured for {stopName}",
+      "routeDetour": "Bus {busNumber} changed route: {originalRoute} → {newRoute}. Reason: {reason}",
+      "connectionError": "No connection. Notifications will be sent when you're back online"
     }
   },
   "profile-notifications": {
@@ -115,7 +120,9 @@
     "destination": "Destination",
     "viewRoute": "View route",
     "googleMaps": "Google Maps",
-    "deleteTooltip": "Remove route from favorites"
+    "deleteTooltip": "Remove route from favorites",
+    "confirmDelete": "re you sure you want to remove this route from your favorites?",
+    "removed": "Route removed from favorites"
   },
   "accountSettings": {
     "back": "Back",
@@ -271,7 +278,11 @@
       "createAccount": "Create one",
       "errors": {
         "usernameRequired": "Enter your username",
-        "passwordRequired": "Enter your password"
+        "passwordRequired": "Enter your password",
+        "auth": {
+          "invalidCredentials": "Incorrect username or password"
+        },
+        "tryAgain": "Try again"
       }
     },
     "register": {
@@ -322,7 +333,8 @@
     "title": "Nearby Stops",
     "passingBuses": "Buses passing:",
     "directions": "Directions",
-    "notifyArrival": "Notify arrival"
+    "notifyArrival": "Notify arrival",
+    "loading": "Loading Nearby Stops..."
   },
   "travelHistory": {
     "back": "Back",
@@ -334,15 +346,18 @@
     "repeatTooltip": "Search this route again"
   },
   "selectRole": {
-    "passenger": "Passenger",
-    "company": "Company",
-    "title": "Choose your role"
+    "title": "How do you want to sign in?",
+    "passenger": "I'm a Passenger",
+    "company": "I'm a Company",
+    "continue": "Continue",
+    "error": "Select a user type"
   },
   "passenger": {
     "loginTitle": "PASSENGERS"
   },
   "company": {
-    "loginTitle": "COMPANY"
+    "loginTitle": "COMPANY",
+    "busImageAlt": "Company bus"
   },
   "companyRegister": {
     "register": {
@@ -414,6 +429,14 @@
       "passwordChanged": "Password changed successfully",
       "passwordMismatch": "Passwords do not match",
       "confirmLogout": "Are you sure you want to logout?"
+    },
+    "errors": {
+      "companyNameRequired": "Company name is required",
+      "currentPasswordRequired": "Enter your current password",
+      "newPasswordRequired": "Enter your new password",
+      "passwordTooShort": "The new password must be at least 6 characters long",
+      "currentPasswordIncorrect": "The current password is incorrect",
+      "passwordChangeFailed": "Error changing the password"
     }
   },
   "fleet": {
@@ -501,53 +524,77 @@
     },
     "errors": {
       "missingFields": "Please fill in all bus fields"
-    }
-  },
-  "alerts": {
-    "title": "Internal Alerts",
-    "empty": "No pending alerts found",
-    "confirmResolve": "Are you sure you want to mark this alert as resolved?",
-    "filters": {
-      "type": "Filter by Type",
-      "severity": "Filter by Severity",
-      "status": "Filter by Status",
-      "allTypes": "All Types",
-      "allSeverities": "All Severities",
-      "allStatus": "All Statuses"
     },
-    "types": {
-      "detour": "Route Detour Detected",
-      "traffic": "Heavy Traffic",
-      "incident": "Incident Reported",
-      "delay": "Minor Delay"
+    "connectionError": {
+      "title": "Connection error",
+      "description": "Could not connect to the server. Please try again.",
+      "retry": "Retry"
     },
-    "severity": {
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low"
+    "alerts": {
+      "title": "Internal Alerts",
+      "empty": "No pending alerts found",
+      "confirmResolve": "Are you sure you want to mark this alert as resolved?",
+      "filters": {
+        "type": "Filter by Type",
+        "severity": "Filter by Severity",
+        "status": "Filter by Status",
+        "allTypes": "All Types",
+        "allSeverities": "All Severities",
+        "allStatus": "All Statuses"
+      },
+      "types": {
+        "detour": "Route Detour Detected",
+        "traffic": "Heavy Traffic",
+        "incident": "Incident Reported",
+        "delay": "Minor Delay"
+      },
+      "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "status": {
+        "pending": "Pending",
+        "resolved": "Resolved"
+      },
+      "actions": {
+        "resolve": "Mark as Resolved"
+      },
+      "create": {
+        "button": "New Alert",
+        "title": "Report Incident",
+        "type": "Incident Type",
+        "severity": "Severity Level",
+        "busId": "Bus ID",
+        "busIdPlaceholder": "Ex: 204",
+        "route": "Affected Route",
+        "routePlaceholder": "Ex: Miraflores - Centro",
+        "save": "Publish Alert",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "missingFields": "Please fill in all fields"
+      }
     },
-    "status": {
-      "pending": "Pending",
-      "resolved": "Resolved"
-    },
-    "actions": {
-      "resolve": "Mark as Resolved"
-    },
-
-    "create": {
-      "button": "New Alert",
-      "title": "Report Incident",
-      "type": "Incident Type",
-      "severity": "Severity Level",
-      "busId": "Bus ID",
-      "busIdPlaceholder": "Ex: 204",
-      "route": "Affected Route",
-      "routePlaceholder": "Ex: Miraflores - Centro",
-      "save": "Publish Alert",
-      "cancel": "Cancel"
-    },
-    "errors": {
-      "missingFields": "Please fill in all fields"
+    "register": {
+      "title": "Create your account",
+      "companyName": "Company name",
+      "alreadyHaveAccount": "Already have an account?",
+      "loginLink": "Sign In",
+      "submit": "Create Account",
+      "loading": "Registering...",
+      "success": "Registration successful! You can now log in.",
+      "errors": {
+        "companyNameRequired": "Company name is required",
+        "rucRequired": "Tax ID is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email",
+        "addressRequired": "Address is required",
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "The password must be at least 6 characters",
+        "confirmPasswordRequired": "You must confirm the password",
+        "fleetSizeRequired": "Fleet size is required"
+      }
     }
   }
 }

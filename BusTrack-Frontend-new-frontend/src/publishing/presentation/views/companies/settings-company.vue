@@ -90,29 +90,28 @@ const saveAlertPreferences = () => {
 // Cambiar contraseña (funcional)
 const changePassword = () => {
   // Validaciones
+  if (!companyInfo.value.name.trim()) {
+    alert(t('settings.errors.companyNameRequired'))
+    return
+  }
+
   if (!security.value.currentPassword) {
-    alert('Ingresa tu contraseña actual')
+    alert(t('settings.errors.currentPasswordRequired'))
     return
   }
 
   if (!security.value.newPassword) {
-    alert('Ingresa tu nueva contraseña')
+    alert(t('settings.errors.newPasswordRequired'))
     return
   }
 
   if (security.value.newPassword.length < 6) {
-    alert('La nueva contraseña debe tener al menos 6 caracteres')
+    alert(t('settings.errors.passwordTooShort'))
     return
   }
 
-  if (security.value.newPassword !== security.value.confirmPassword) {
-    alert(t('settings.messages.passwordMismatch'))
-    return
-  }
-
-  // Verificar contraseña actual
   if (security.value.currentPassword !== userStore.user.password) {
-    alert('La contraseña actual es incorrecta')
+    alert(t('settings.errors.currentPasswordIncorrect'))
     return
   }
 
@@ -131,7 +130,7 @@ const changePassword = () => {
 
     console.log('✅ Contraseña cambiada exitosamente')
   } catch (error) {
-    alert('Error al cambiar la contraseña: ' + error.message)
+    alert(t('settings.errors.passwordChangeFailed') + ': ' + error.message)
   }
 }
 

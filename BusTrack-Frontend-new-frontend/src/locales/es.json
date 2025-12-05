@@ -11,6 +11,7 @@
     "title": "Notificaciones",
     "clearAll": "Limpiar todo",
     "confirmClearAll": "¿Deseas eliminar todas las notificaciones?",
+    "delete": "Eliminar",
     "empty": {
       "title": "No tienes notificaciones",
       "subtitle": "Cuando guardes rutas o haya actualizaciones, aparecerán aquí"
@@ -33,7 +34,12 @@
       "noRoutesFound": "No se encontraron rutas disponibles",
       "routeUpdated": "Información de ruta actualizada",
       "favoriteAdded": "Añadido a favoritos",
-      "favoriteRemoved": "Eliminado de favoritos"
+      "favoriteRemoved": "Eliminado de favoritos",
+      "busDelayed": "Bus {busNumber} tiene {delayMinutes} minutos de retraso en {stopName}",
+      "routeDetour": "Bus {busNumber} cambió de ruta: {originalRoute} → {newRoute}. Razón: {reason}",
+      "notificationConfigured": "Notificación configurada para {stopName}",
+      "alreadyConfigured": "Ya tienes notificaciones configuradas para {stopName}",
+      "connectionError": "Sin conexión. Las notificaciones se enviarán cuando vuelvas a estar en línea"
     }
   },
   "profile-notifications": {
@@ -107,15 +113,17 @@
   },
   "favoriteRoutes": {
     "back": "Volver",
-    "title": "Rutas Favoritas",
+    "title": "Rutas favoritas",
     "emptyTitle": "No tienes rutas guardadas",
-    "emptySubtitle": "Guarda tus rutas frecuentes para acceder a ellas rápidamente",
-    "searchButton": "Buscar rutas",
+    "emptySubtitle": "Guarda tus rutas frecuentes para acceder a ellas rápidamente.",
+    "searchButton": "Buscar ruta",
     "origin": "Origen",
     "destination": "Destino",
     "viewRoute": "Ver ruta",
-    "googleMaps": "Google Maps",
-    "deleteTooltip": "Eliminar ruta de favoritos"
+    "googleMaps": "Abrir en Google Maps",
+    "deleteTooltip": "Eliminar ruta de favoritos",
+    "confirmDelete": "¿Estás seguro de eliminar esta ruta de favoritos?",
+    "removed": "Ruta eliminada de favoritos"
   },
   "accountSettings": {
     "back": "Volver",
@@ -268,10 +276,14 @@
       "submit": "Iniciar Sesión",
       "noAccount": "¿No tienes una cuenta?",
       "register": "Iniciar Sesión",
-      "createAccount": "Crear una",
+      "createAccount": "Crear una cuenta",
       "errors": {
         "usernameRequired": "Ingresa tu usuario",
-        "passwordRequired": "Ingresa tu contraseña"
+        "passwordRequired": "Ingresa tu contraseña",
+        "auth": {
+          "invalidCredentials": "Usuario o contraseña incorrectos"
+        },
+        "tryAgain": "Por favor intenta nuevamente"
       }
     },
     "register": {
@@ -322,7 +334,8 @@
     "title": "Paraderos Cercanos",
     "passingBuses": "Buses que pasan:",
     "directions": "Direcciones",
-    "notifyArrival": "Notificar llegada"
+    "notifyArrival": "Notificar llegada",
+    "loading": "Cargando paraderos cercanos..."
   },
   "travelHistory": {
     "back": "Volver",
@@ -334,15 +347,18 @@
     "repeatTooltip": "Buscar esta ruta nuevamente"
   },
   "selectRole": {
-    "passenger": "Pasajero",
-    "company": "Empresa",
-    "title": "Elige tu rol"
+    "title": "¿Cómo deseas ingresar?",
+    "passenger": "Soy Pasajero",
+    "company": "Soy Empresa",
+    "continue": "Continuar",
+    "error": "Seleccione un tipo de usuario"
   },
   "passenger": {
     "loginTitle": "PASAJEROS"
   },
   "company": {
-    "loginTitle": "EMPRESA"
+    "loginTitle": "EMPRESA",
+    "busImageAlt": "Bus de la empresa"
   },
   "companyRegister": {
     "register": {
@@ -414,6 +430,14 @@
       "passwordChanged": "Contraseña cambiada exitosamente",
       "passwordMismatch": "Las contraseñas no coinciden",
       "confirmLogout": "¿Está seguro que desea cerrar sesión?"
+    },
+    "errors": {
+      "companyNameRequired": "El nombre de la empresa es requerido",
+      "currentPasswordRequired": "Ingresa tu contraseña actual",
+      "newPasswordRequired": "Ingresa tu nueva contraseña",
+      "passwordTooShort": "La nueva contraseña debe tener al menos 6 caracteres",
+      "currentPasswordIncorrect": "La contraseña actual es incorrecta",
+      "passwordChangeFailed": "Error al cambiar la contraseña"
     }
   },
   "fleet": {
@@ -501,11 +525,17 @@
     },
     "errors": {
       "missingFields": "Por favor completa todos los campos del bus"
+    },
+    "connectionError": {
+      "title": "Error de conexión",
+      "description": "No se pudo conectar con el servidor. Por favor, intenta nuevamente.",
+      "retry": "Reintentar"
     }
   },
   "alerts": {
     "title": "Alertas Internas",
     "empty": "No hay alertas pendientes",
+    "confirmResolve": "¿Estás seguro de que deseas marcar esta alerta como resuelta?",
     "filters": {
       "type": "Filtrar por Tipo",
       "severity": "Filtrar por Gravedad",
@@ -547,5 +577,27 @@
     "errors": {
       "missingFields": "Por favor completa todos los campos"
     }
+  },
+  "register": {
+    "title": "Crea tu cuenta",
+    "companyName": "Nombre de la empresa",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "loginLink": "Inicia Sesión",
+    "submit": "Crear Cuenta",
+    "loading": "Registrando...",
+
+    "success": "¡Registro exitoso! Ahora puedes iniciar sesión.",
+    "errors": {
+      "companyNameRequired": "El nombre de la empresa es requerido",
+      "rucRequired": "El RUC es requerido",
+      "emailRequired": "El correo es requerido",
+      "emailInvalid": "Correo inválido",
+      "addressRequired": "La dirección es requerida",
+      "passwordRequired": "La contraseña es requerida",
+      "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+      "confirmPasswordRequired": "Debe confirmar la contraseña",
+      "fleetSizeRequired": "El tamaño de la flota es requerido"
+    }
   }
+
 }

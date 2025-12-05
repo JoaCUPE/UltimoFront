@@ -32,13 +32,34 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
 })
 
-function validate(){
-  errors.email = !form.email ? 'Ingresa tu correo' : (!isEmail(form.email) ? 'Correo inválido' : null)
-  errors.username = !form.username ? 'Ingresa tu usuario' : null
-  errors.password = form.password.length < 6 ? 'Mínimo 6 caracteres' : null
-  errors.confirm = form.confirm !== form.password ? 'Las contraseñas no coinciden' : null
+function validate () {
+  // email
+  if (!form.email) {
+    errors.email = t('auth.register.errors.emailRequired')
+  } else if (!isEmail(form.email)) {
+    errors.email = t('auth.register.errors.emailInvalid')
+  } else {
+    errors.email = null
+  }
+
+  // username
+  errors.username = !form.username
+      ? t('auth.register.errors.usernameRequired')
+      : null
+
+  // password
+  errors.password = form.password.length < 6
+      ? t('auth.register.errors.passwordMin')
+      : null
+
+  // confirm
+  errors.confirm = form.confirm !== form.password
+      ? t('auth.register.errors.confirmMismatch')
+      : null
+
   return !errors.email && !errors.username && !errors.password && !errors.confirm
 }
+
 
 const canSubmit = computed(() => {
   if (!form.email || !form.username || !form.password || !form.confirm) {
@@ -140,15 +161,17 @@ function onGoogleSignup() {
 
       <!-- Confirmar contraseña -->
       <label class="field">
-        <span class="label">{{ t('auth.register.confirmPassword') || 'Confirmar contraseña' }}</span>
+        <span class="label">{{ t('auth.register.confirmPassword') }}</span>
+
         <input
             class="input"
             type="password"
             v-model="form.confirm"
-            :placeholder="t('auth.register.confirmPasswordPlaceholder') || 'Confirma tu contraseña'"
-            :aria-label="t('auth.register.confirmPassword') || 'Confirmar contraseña'"
+            :placeholder="t('auth.register.confirmPasswordPlaceholder')"
+            :aria-label="t('auth.register.confirmPassword')"
             :aria-invalid="!!errors.confirm"
         />
+
         <small v-if="errors.confirm" class="error">{{ errors.confirm }}</small>
       </label>
 
